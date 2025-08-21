@@ -1,0 +1,34 @@
+Dataset: Use a smaller, standard dataset like CIFAR-10 or CIFAR-100 (available in torchvision.datasets).
+
+10 or 100 classes, tiny images (32x32) easy to handle.
+
+Step 1: CNN Feature Extractor
+
+Load a pretrained ResNet18 or a simpler CNN.
+
+Remove the last classification layer, get feature vectors (e.g. 512-dim).
+
+Freeze CNN weights (no fine-tuning) to keep it simple.
+
+Step 2: Extract Features
+
+Run all dataset images through CNN extractor, save the feature vectors and labels.
+
+Step 3: Train Classical ML Models
+
+Use scikit-learn’s Random Forest, SVM, Gradient Boosting, etc. on the extracted CNN features.
+
+Train and validate their accuracy.
+
+Step 4: Ensemble
+
+Combine classical ML predictions with deep learning model predictions (for example, the CNN with a small FC layer).
+
+Use voting, stacking, or weighted averaging for the final prediction.
+
+Bonus:
+
+Add some simple augmentation in CNN training or classical ML tuning to boost performance.
+
+Visualize feature embeddings using t-SNE or PCA.
+
