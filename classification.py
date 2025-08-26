@@ -9,7 +9,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-import pandas as pd
+from torchvision.models import resnet18, ResNet18_Weights
+import numpy as np
 
 path = kagglehub.dataset_download("jessicali9530/caltech256")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -22,7 +23,8 @@ learning_rate = 0.001
 # Transformations for the images
 transform = transforms.Compose([
     transforms.Resize((32, 32)),
-    transforms.ToTensor()
+    transforms.ToTensor(), 
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
 # Loading the dataset
@@ -63,30 +65,36 @@ random_forest = RandomForestClassifier()
 decision_tree = DecisionTreeClassifier()
 svc = SVC()
 
-train_outputs = pd.DataFrame()
-train_labels = pd.DataFrame()
+train_outputs = []
+train_labels = []
 
 for images, labels in train_loader:
     output = model(images)
-    train_outputs = pd.concat(output.detach().numpy())
-    train_labels = pd.concat(labels.detach().numpy())
+    train_outputs.append(output.detach().numpy())
+    train_labels.append(labels.detach().numpy())
 
-random_forest.fit(train_outputs, train_labels)
-decision_tree.fit(train_outputs, train_labels)
-svc.fit(train_outputs, train_labels)
+X_train = np.vstack(train_outputs)
+y_train = np.hstack(train_labels)
 
-test_outputs = pd.DataFrame()
-test_labels = pd.DataFrame()
+random_forest.fit(X_train, y_train)
+decision_tree.fit(X_train, y_train)
+svc.fit(X_train, y_train)
+
+test_outputs = []
+test_labels = []
 
 for images, labels in train_loader:
     output = model(images)
-    test_outputs = pd.concat(output.detach().numpy())
-    test_labels = pd.concat(labels.detach().numpy())
+    test_outputs.append(output.detach().numpy())
+    test_labels.append(labels.detach().numpy())
 
-r_pred = random_forest.predict(test_outputs)
-d_pred = decision_tree.predict(test_outputs)
-s_pred = svc.predict(test_outputs)
+X_test = np.vstack(test_outputs)
+y_test = np.hstack(test_labels)
 
-print(accuracy_score(test_labels, r_pred))
-print(accuracy_score(test_labels, d_pred))
-print(accuracy_score(test_labels, s_pred))
+r_pred = random_forest.predict(X_test)
+d_pred = decision_tree.predict(X_test)
+s_pred = svc.predict(X_test)
+
+print(accuracy_score(y_test, r_pred))
+print(accuracy_score(y_test, d_pred))
+print(accuracy_score(y_test, s_pred))
