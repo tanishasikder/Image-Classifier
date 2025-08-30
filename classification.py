@@ -28,7 +28,7 @@ transform = transforms.Compose([
 ])
 
 # Loading the dataset
-dataset = ImageFolder(root=path, transform=transform)
+dataset = ImageFolder(root=path + "/256_ObjectCategories", transform=transform)
 
 # Splitting into train and test sets
 train_size = int(0.8 * len(dataset))
@@ -83,7 +83,7 @@ svc.fit(X_train, y_train)
 test_outputs = []
 test_labels = []
 
-for images, labels in train_loader:
+for images, labels in test_loader:
     output = model(images)
     test_outputs.append(output.detach().numpy())
     test_labels.append(labels.detach().numpy())
@@ -98,3 +98,4 @@ s_pred = svc.predict(X_test)
 print(accuracy_score(y_test, r_pred))
 print(accuracy_score(y_test, d_pred))
 print(accuracy_score(y_test, s_pred))
+
